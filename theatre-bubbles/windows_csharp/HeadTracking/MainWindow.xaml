@@ -1,0 +1,14 @@
+﻿<Window x:Class="SkeletalViewer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" ResizeMode="NoResize" Width="1280" Height="720"
+        Loaded="Window_Loaded" Closed="Window_Closed" WindowState="Maximized" WindowStyle="None">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ImageSource x:Key="think">think.png</ImageSource>
+        </ResourceDictionary>
+    </Window.Resources>
+    <StackPanel>
+        <Canvas Width="1280" Height="720" Name="skeleton" Background="Black" ClipToBounds="True" />
+    </StackPanel>
+</Window>
