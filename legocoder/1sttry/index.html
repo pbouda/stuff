@@ -2,25 +2,42 @@
     <head>
         <script type="text/javascript" src="pixastic/pixastic.core.js"></script>
         <script type="text/javascript" src="pixastic/actions/edges.js"></script>
+        <script type="text/javascript" src="pixastic/actions/brightness.js"></script>
+        <script type="text/javascript" src="pixastic/actions/hsl.js"></script>
+        <script type="text/javascript" src="pixastic/actions/high_pass_filter.js"></script>
     </head>
-    <body onload="detectEdges()">
-        <img id="demoimage" src="lego1.jpg" />
+    <body onload="start()">
+    <img src="lego1.jpg" id="myimage" />
     <script type="text/javascript">
-    function detectEdges() {
-        var img = document.getElementById("demoimage"); // get the image element
+    function start() {
+        var img = document.getElementById("myimage");
+        contrast(img);
+    }
+    function contrast(img) {
+        Pixastic.process(img, "brightness", {contrast:2.0}, greyscale);
+    }
+
+    function greyscale(img) {
+	Pixastic.process(img, "hsl", {saturation:-100}, detect_edges);
+    }
+    
+    function detect_edges(img) {
+        Pixastic.process(
+            img,
+            "edges",	// brightness/contrast adjustment
+            {
+                mono : 0,
+                //edgeStrength : 1.7,	// set brightness option value to 60
+                //greyLevel : 90,	// set contrast option value to 0.5,
+                invert : 0
+            },
+            high_pass_filter
+        )
+    }
+    
+    function high_pass_filter(img) {
+        Pixastic.process(img, "high_pass_filter", {min_value:64});
         
-        if (img.complete) {	// make sure the image is fully loaded
-            Pixastic.process(
-                img,
-                "edges",	// brightness/contrast adjustment
-                {
-                    mono : 0,
-                    //edgeStrength : 1.7,	// set brightness option value to 60
-                    //greyLevel : 90,	// set contrast option value to 0.5,
-                    invert : 0
-                }
-            )
-        }
     }
     </script>
     </body>
