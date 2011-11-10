@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <script type="text/javascript" src="pixastic/pixastic.core.js"></script>
+        <script type="text/javascript" src="pixastic/actions/edges.js"></script>
+    </head>
+    <body onload="detectEdges()">
+        <img id="demoimage" src="lego1.jpg" />
+    <script type="text/javascript">
+    function detectEdges() {
+        var img = document.getElementById("demoimage"); // get the image element
+        
+        if (img.complete) {	// make sure the image is fully loaded
+            Pixastic.process(
+                img,
+                "edges",	// brightness/contrast adjustment
+                {
+                    mono : 0,
+                    //edgeStrength : 1.7,	// set brightness option value to 60
+                    //greyLevel : 90,	// set contrast option value to 0.5,
+                    invert : 0
+                }
+            )
+        }
+    }
+    </script>
+    </body>
+</html>
