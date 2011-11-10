@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{67cf3b99-16ac-4cd6-af71-22cf31c76825}</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>SkeletalViewer.py</StartupFile>
+    <SearchPath>C:\Program Files (x86)\Microsoft Research KinectSDK</SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <IsWindowsApplication>True</IsWindowsApplication>
+    <InterpreterId>80659ab7-4d53-4e0c-8588-a766116cbd46</InterpreterId>
+    <LaunchProvider>IronPython (.NET) launcher</LaunchProvider>
+    <InterpreterVersion>2.7</InterpreterVersion>
+    <AssemblyName>SkeletalViewer</AssemblyName>
+    <Name>SkeletalViewer</Name>
+    <RootNamespace>SkeletalViewer</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="SkeletalViewer.py" />
+    <None Include="SkeletalViewer.xaml" />
+  </ItemGroup>
+</Project>
