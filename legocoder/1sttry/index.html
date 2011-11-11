@@ -5,14 +5,33 @@
         <script type="text/javascript" src="pixastic/actions/brightness.js"></script>
         <script type="text/javascript" src="pixastic/actions/hsl.js"></script>
         <script type="text/javascript" src="pixastic/actions/high_pass_filter.js"></script>
+        <script type="text/javascript" src="pixastic/actions/template_match.js"></script>
+        <script type="text/javascript" src="pixastic/actions/knobs_color.js"></script>
     </head>
     <body onload="start()">
-    <img src="lego1.jpg" id="myimage" />
+    <!--<canvas width="600" height="800" id="imageorig" /><br/>
+    <canvas width="600" height="800" id="imageprocessed" /><br/>-->
+    <img src="lego1.jpg" id="imageorig"/><br/>
+    <img src="lego1.jpg" id="imageprocessed"/><br/>
+    <!--<canvas width="600" height="800" id="knobs" />-->
     <script type="text/javascript">
     function start() {
-        var img = document.getElementById("myimage");
-        contrast(img);
+        /*var ctx = document.getElementById('imageorig').getContext('2d');
+        var ctx2 = document.getElementById('imageprocessed').getContext('2d');
+        var img = new Image();
+        var img2 = new Image();
+        img.src = 'lego1.jpg';
+        img2.src = 'lego1.jpg';
+        img.onload = function(){
+                ctx.drawImage(img, 0, 0);
+        }
+        img2.onload = function(){
+                ctx2.drawImage(img2, 0, 0);
+        }*/
+        img2 = document.getElementById('imageprocessed')
+        contrast(img2);
     }
+
     function contrast(img) {
         Pixastic.process(img, "brightness", {contrast:2.0}, greyscale);
     }
@@ -27,8 +46,6 @@
             "edges",	// brightness/contrast adjustment
             {
                 mono : 0,
-                //edgeStrength : 1.7,	// set brightness option value to 60
-                //greyLevel : 90,	// set contrast option value to 0.5,
                 invert : 0
             },
             high_pass_filter
@@ -36,9 +53,26 @@
     }
     
     function high_pass_filter(img) {
-        Pixastic.process(img, "high_pass_filter", {min_value:64});
+        Pixastic.process(img, "high_pass_filter", {min_value:64}, template_match);
         
     }
+
+    function template_match(newImg) {
+        var knobs = {};
+        Pixastic.process(newImg, "template_match", {similarity_threshold:0.92, returnValue:knobs});
+        var img = document.getElementById("imageorig");
+        var knobsColors = {};
+        Pixastic.process(img, "knobs_color", {knobs:knobs.values, returnValue:knobsColors});
+        var ctx = document.getElementById('imageorig').getContext('2d');
+        for (i = 0; i < knobs.values.length; i++) {
+            ctx.fillStyle = "rgb(" + knobsColors.values[i].r +", " + knobsColors.values[i].g + ", " + knobsColors.values[i].b + ")";
+            ctx.beginPath();
+            ctx.arc(knobs.values[i].x, knobs.values[i].y, 10, 0, Math.PI*2, true);
+            ctx.closePath();            
+            ctx.fill();
+        }
+    }
+
     </script>
     </body>
 </html>
