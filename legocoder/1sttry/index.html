@@ -1,20 +1,32 @@
 <html>
     <head>
+        <script type="text/javascript" src="jquery.js"></script>
         <script type="text/javascript" src="pixastic/pixastic.core.js"></script>
         <script type="text/javascript" src="pixastic/actions/edges.js"></script>
+        <script type="text/javascript" src="pixastic/actions/sharpen.js"></script>
+        <script type="text/javascript" src="pixastic/actions/edges2.js"></script>
+        <script type="text/javascript" src="pixastic/actions/laplace.js"></script>
         <script type="text/javascript" src="pixastic/actions/brightness.js"></script>
         <script type="text/javascript" src="pixastic/actions/hsl.js"></script>
+        <script type="text/javascript" src="pixastic/actions/desaturate.js"></script>
         <script type="text/javascript" src="pixastic/actions/high_pass_filter.js"></script>
         <script type="text/javascript" src="pixastic/actions/template_match.js"></script>
         <script type="text/javascript" src="pixastic/actions/knobs_color.js"></script>
+        <script type="text/javascript" src="pixastic/actions/removenoise.js"></script>
     </head>
-    <body onload="start()">
+    <body onload="start()" style="margin:0; padding:0;background-color:#aaa;">
     <!--<canvas width="600" height="800" id="imageorig" /><br/>
     <canvas width="600" height="800" id="imageprocessed" /><br/>-->
-    <img src="lego1.jpg" id="imageorig"/><br/>
-    <img src="lego1.jpg" id="imageprocessed"/><br/>
+    <img src="demos/demo2.jpg" id="imageorig"/><br/>
+    <img src="demos/demo2.jpg" id="imageprocessed"/>
+    <audio src="helloo.wav" id="sound1" style="display:none;" />
+    <audio src="wow.wav" id="sound4" style="display:none;" />
+<!--    <canvas width="600" height="800" id="playground1" style="display:none;position:absolute;top:0;left:0;background-color:#060;" />
+    <canvas width="600" height="800" id="playground2" style="display:none;position:absolute;top:0;left:0;background-color:#000;" />
+    <canvas width="600" height="800" id="playground3" style="display:none;position:absolute;top:0;left:0;background-color:#000;" />-->
     <!--<canvas width="600" height="800" id="knobs" />-->
     <script type="text/javascript">
+    
     function start() {
         /*var ctx = document.getElementById('imageorig').getContext('2d');
         var ctx2 = document.getElementById('imageprocessed').getContext('2d');
@@ -29,27 +41,26 @@
                 ctx2.drawImage(img2, 0, 0);
         }*/
         img2 = document.getElementById('imageprocessed')
-        contrast(img2);
+        img2.setAttribute("style", "visibility:hidden;")
+        remove_noise(img2);
+    }
+
+    function remove_noise(img) {
+	Pixastic.process(img, "removenoise", {}, show_program);      
     }
 
     function contrast(img) {
-        Pixastic.process(img, "brightness", {contrast:2.0}, greyscale);
+        Pixastic.process(img, "brightness", {contrast:3.0}, greyscale);
     }
 
     function greyscale(img) {
-	Pixastic.process(img, "hsl", {saturation:-100}, detect_edges);
+	//Pixastic.process(img, "hsl", {saturation:-100}, detect_edges);
+        Pixastic.process(img, "desaturate", {average : true}, detect_edges);
     }
     
     function detect_edges(img) {
-        Pixastic.process(
-            img,
-            "edges",	// brightness/contrast adjustment
-            {
-                mono : 0,
-                invert : 0
-            },
-            high_pass_filter
-        )
+        Pixastic.process(img, "edges4", { mono : 0, invert : 0}, high_pass_filter)
+	//Pixastic.process(img, "laplace", {edgeStrength:2.0,invert:false,greyLevel:0}, high_pass_filter);
     }
     
     function high_pass_filter(img) {
@@ -57,20 +68,230 @@
         
     }
 
+    var knobs = {};
+    var knobsColors = {};
     function template_match(newImg) {
-        var knobs = {};
-        Pixastic.process(newImg, "template_match", {similarity_threshold:0.92, returnValue:knobs});
-        var img = document.getElementById("imageorig");
-        var knobsColors = {};
-        Pixastic.process(img, "knobs_color", {knobs:knobs.values, returnValue:knobsColors});
-        var ctx = document.getElementById('imageorig').getContext('2d');
+        Pixastic.process(newImg, "template_match", {similarity_threshold:0.92, returnValue:knobs}, knobs_colors);
+        /*var ctx = document.getElementById('imageorig').getContext('2d');
         for (i = 0; i < knobs.values.length; i++) {
             ctx.fillStyle = "rgb(" + knobsColors.values[i].r +", " + knobsColors.values[i].g + ", " + knobsColors.values[i].b + ")";
             ctx.beginPath();
             ctx.arc(knobs.values[i].x, knobs.values[i].y, 10, 0, Math.PI*2, true);
             ctx.closePath();            
             ctx.fill();
+        }*/
+    }
+    
+    function knobs_colors(newIimg) {
+        var img = document.getElementById("imageorig");
+        Pixastic.process(img, "knobs_color", {knobs:knobs.values, returnValue:knobsColors}, show_program);
+    }
+    
+    var Colors = {"white" : 0, "blue" : 1, "red" : 2, "yellow" : 4, "green" : 5, "backgroundgreen" : 6};
+
+    var program_colors = [
+        [ Colors.backgroundgreen, Colors.backgroundgreen, Colors.backgroundgreen, Colors.backgroundgreen, Colors.backgroundgreen, Colors.backgroundgreen, Colors.backgroundgreen, Colors.backgroundgreen ],
+        [ Colors.backgroundgreen, Colors.red, Colors.red, Colors.backgroundgreen, Colors.blue, Colors.white, Colors.white, Colors.backgroundgreen ],
+        [ Colors.backgroundgreen, Colors.yellow, Colors.yellow, Colors.backgroundgreen, Colors.white, Colors.white, Colors.blue, Colors.backgroundgreen ],
+        [ Colors.backgroundgreen, Colors.yellow, Colors.yellow, Colors.backgroundgreen, Colors.blue, Colors.white, Colors.white, Colors.backgroundgreen ],
+        [ Colors.backgroundgreen, Colors.green, Colors.green, Colors.backgroundgreen, Colors.white, Colors.white, Colors.blue, Colors.backgroundgreen ],
+        [ Colors.backgroundgreen, Colors.yellow, Colors.green, Colors.backgroundgreen, Colors.blue, Colors.white, Colors.white, Colors.backgroundgreen ],
+        [ Colors.backgroundgreen, Colors.red, Colors.green, Colors.backgroundgreen, Colors.blue, Colors.white, Colors.blue, Colors.backgroundgreen ],
+        [ Colors.backgroundgreen, Colors.red, Colors.yellow, Colors.backgroundgreen, Colors.blue, Colors.blue, Colors.white, Colors.backgroundgreen ],
+        [ Colors.backgroundgreen, Colors.red, Colors.white, Colors.backgroundgreen, Colors.white, Colors.blue, Colors.blue, Colors.backgroundgreen ],
+        [ Colors.backgroundgreen, Colors.green, Colors.white, Colors.backgroundgreen, Colors.blue, Colors.blue, Colors.blue, Colors.backgroundgreen ],
+        [ Colors.backgroundgreen, Colors.backgroundgreen, Colors.backgroundgreen, Colors.backgroundgreen, Colors.backgroundgreen, Colors.backgroundgreen, Colors.backgroundgreen, Colors.backgroundgreen ],
+    ]
+    
+    var Opcodes = { "MVUP" : 0, "MVDOWN" : 1, "MVLEFT" : 2, "MVRIGHT" : 3, "BEEP" : 4, "BEEPSTOP" : 5, "WAIT" : 6, "JMP" : 7 }
+    var OpcodesNames = ["MVUP", "MVDOWN", "MVLEFT", "MVRIGHT", "SOUND", "SOUNDSTOP", "WAIT", "JMP"]
+    
+    var program_opcodes = [
+        [ Opcodes.MVRIGHT, 4],
+        [ Opcodes.BEEP, 1],
+        [ Opcodes.BEEP, 4],
+        [ Opcodes.WAIT, 2],
+        [ Opcodes.BEEPSTOP, 0],
+        [ Opcodes.MVUP, 5],
+        [ Opcodes.MVLEFT, 6],
+        [ Opcodes.MVDOWN, 3],
+        [ Opcodes.JMP, 0]
+    ]
+        
+    function show_program() {
+        var canvas = document.createElement('canvas');
+        canvas.height="800";
+        canvas.width="600";
+        canvas.id = "playground1";
+        canvas.setAttribute("style", "background-color:#050;display:none;position:absolute;top:0;left:0;");
+        document.body.appendChild(canvas);
+        var ctx = canvas.getContext('2d');
+        for (i = 0; i < program_colors.length; i++) {
+            for (j = 0; j < program_colors[i].length; j++) {
+                switch(program_colors[i][j]) {
+                    case Colors.white:
+                        ctx.fillStyle = "#fff";
+                        break;
+                    case Colors.blue:
+                        ctx.fillStyle = "#00f";
+                        break;
+                    case Colors.red:
+                        ctx.fillStyle = "#f00";
+                        break;
+                    case Colors.yellow:
+                        ctx.fillStyle = "#ff0";
+                        break;
+                    case Colors.green:
+                        ctx.fillStyle = "#0c0";
+                        break;
+                    case Colors.backgroundgreen:
+                        ctx.fillStyle = "#040";
+                        break;
+                    default:
+                        break;
+                }
+                ctx.beginPath();
+                //ctx.arc(j*75+32, i*85+40, 30, 0, Math.PI*2, true);
+                ctx.fillRect(j*75+10, i*73+10, 55, 53)
+                ctx.closePath();            
+                ctx.fill();
+            }
         }
+        $('#imageprocessed').fadeOut(2000);
+        $('#imageorig').fadeOut(2000);
+        $('#playground1').fadeIn(2000, show_program_code);
+    }
+    
+    var img_still = new Image();
+    img_still.src = 'lego_still.png';
+    var img_down = new Image();
+    img_down.src = 'lego_down.png';
+    var img_up = new Image();
+    img_up.src = 'lego_up.png';
+    var img_left = new Image();
+    img_left.src = 'lego_left.png';
+    var img_right = new Image();
+    img_right.src = 'lego_right.png';
+    var img_a = new Image();
+    img_a.src = 'lego_a.png';
+    var img_b = new Image();
+    img_b.src = 'lego_b.png';
+
+    function show_program_code() {
+        var textarea = document.createElement('textarea');
+        textarea.id = "playground2";
+        textarea.setAttribute("style", "padding:20px;display:none;position:absolute;top:0;left:0;width:600px;height:800px;font-family:courier;font-size:30px;font-weight:bold;");
+        var text = "";
+        for (i = 0; i < program_opcodes.length; i++) {
+            text += OpcodesNames[program_opcodes[i][0]] + " " + program_opcodes[i][1] + "\n";
+        }
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        $('#playground1').fadeOut(2000);
+        $('#playground2').fadeIn(2000, show_playground_timeout);        
+    }
+    
+    function show_playground_timeout() {
+        setTimeout(show_playground, 1000)
+    }
+    
+    function show_playground() {
+        var canvas = document.createElement('canvas');
+        canvas.height="800";
+        canvas.width="600";
+        canvas.id = "playground3";
+        canvas.setAttribute("style", "background-color:#000;display:none;position:absolute;top:0;left:0;");
+        document.body.appendChild(canvas);
+
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img_still, 50, 150);
+        ctx.fill();
+        $('#playground2').fadeOut(2000);
+        $('#playground3').fadeIn(2000, execute_program_timeout);
+        
+    }
+    
+    var ip = -1;
+    var reg = 0;
+    var toggle = 0;
+    var toggleBeep = 0;
+    var snd = 0;
+    
+    function execute_program_timeout() {
+        setTimeout(execute_program, 1000)
+    }
+    
+    function execute_program(program) {
+        myGameLoop();
+    }
+    
+    myGameLoop = function() {
+        canvas = document.getElementById('playground3');
+        canvas.width = canvas.width;
+        var ctx = canvas.getContext('2d');
+        if (toggle == 0) {
+            ctx.drawImage(img_still, 50, 150);
+            ctx.fill();
+            setTimeout(myGameLoop, 400)
+            toggle = 1;
+            return;
+        }
+        var opcode = 0;
+        if (reg <= 0) {
+            ip++;
+            opcode = program_opcodes[ip][0];
+            reg = program_opcodes[ip][1]
+            if (opcode == Opcodes.BEEP) {
+                snd = reg;
+                reg = 4;
+            }
+        } else {
+            opcode = program_opcodes[ip][0];            
+        }
+        var operand = reg;
+        switch (opcode) {
+            case Opcodes.MVLEFT:
+                ctx.drawImage(img_left, 50, 150);
+                break;
+            case Opcodes.MVRIGHT:
+                ctx.drawImage(img_right, 50, 150);
+                break;
+            case Opcodes.MVUP:
+                ctx.drawImage(img_up, 50, 150);
+                break;
+            case Opcodes.MVDOWN:
+                ctx.drawImage(img_down, 50, 150);
+                break;
+            case Opcodes.BEEP: case Opcodes.WAIT:
+                switch (toggleBeep) {
+                    case 0:
+                        ctx.drawImage(img_a, 50, 150);
+                        break;
+                    case 1:
+                        ctx.drawImage(img_b, 50, 150);
+                        break;                        
+                }
+                toggleBeep++;
+                if (toggleBeep > 1) {
+                    toggleBeep = 0;
+                }
+            case Opcodes.BEEP:
+                var thissound = document.getElementById("sound"+snd);
+                thissound.play();
+                break;
+            case Opcodes.BEEPSTOP:
+                ctx.drawImage(img_still, 50, 150);
+                break;
+            case Opcodes.JMP:
+                ctx.drawImage(img_still, 50, 150);
+                ip = reg-1;
+                reg = 0;
+                break;
+        }
+        ctx.fill();
+        reg -= 1;
+        toggle = 0;
+        setTimeout(myGameLoop, 400)
     }
 
     </script>
