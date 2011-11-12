@@ -1,0 +1,44 @@
+body {
+	background-color: #6e9e31;
+	background-attachment: fixed;
+	background-image: url(webbg.png);
+	background-repeat: repeat-x;
+}
+
+#box {
+	height: 840px;
+	width: 640px;
+	margin-right: auto;
+	margin-left: auto;
+	background-image: url(brick1.png);
+	background-repeat: repeat;	
+}
+
+#application {
+	height: 800px;
+	width: 600px;
+	padding: 20px;
+	position:relative;
+}
+
+#logo {
+	height: 200px;
+	width: 200px;
+	position: absolute;
+	margin-top: 30px;
+	margin-bottom: auto;
+	margin-left: auto;	
+	margin-right: auto;
+	top: 30px;
+	right: 30px;
+
+}
+
+.buttonphoto {
+	margin-left: auto;
+	margin-right: auto;
+	height: 75px;
+	width: 150px;
+	right: auto;
+	padding-left: 20px;
+}
