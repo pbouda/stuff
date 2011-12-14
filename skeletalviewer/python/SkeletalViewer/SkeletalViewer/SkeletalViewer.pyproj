@@ -6,7 +6,7 @@
     <ProjectGuid>{67cf3b99-16ac-4cd6-af71-22cf31c76825}</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>SkeletalViewer.py</StartupFile>
-    <SearchPath>C:\Program Files (x86)\Microsoft Research KinectSDK</SearchPath>
+    <SearchPath>C:\Program Files (x86)\Microsoft Research KinectSDK\;C:\Program Files\Microsoft SDKs\Kinect\v1.0 Beta2\Assemblies</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <IsWindowsApplication>True</IsWindowsApplication>
     <InterpreterId>80659ab7-4d53-4e0c-8588-a766116cbd46</InterpreterId>
