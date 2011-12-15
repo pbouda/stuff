@@ -1,0 +1,9 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MainWindow" ResizeMode="NoResize"
+        WindowState="Maximized" WindowStyle="None">
+    <StackPanel>
+        <Canvas Width="1024" Height="768" x:Name="skeleton" Background="Black" ClipToBounds="True"/>
+    </StackPanel>
+</Window>

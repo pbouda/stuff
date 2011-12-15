@@ -34,14 +34,36 @@
     </div>
     <div id ="logo">
 	<img src="logo.png"/>
-	<!--<a href="#" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('Image3','','button_photo_over.png',1)">
+	<a href="#" onMouseOut="MM_swapImgRestore()" onMouseOver="MM_swapImage('Image3','','button_photo_over.png',1)" onClick="$('#upload_form').slideDown('slow');">
 	    <img src="button_photo.png" tag= "buttonphoto" name="Image3" width="150" height="75" border="0">
-	</a>-->
+	</a>
+        <div id="upload_form" style="display:none;margin-top:10px;">
+            <form  action="upload.py" method="POST" enctype="multipart/form-data">
+                <input name="imagefile" type="file">
+                <input name="submit" type="submit">
+            </form>
+        </div>
+        <div style="margin-top:10px;margin-left:35px;">
+            <a href="#" onClick="toggleCurrentRobot();" style="color:#0f0;text-decoration:none;">toggle robot</a>
+        </div>
     </div>
     <audio src="helloo.wav" id="sound1" style="display:none;" />
     <audio src="wow.wav" id="sound4" style="display:none;" />
     <script type="text/javascript">
     
+    function getURLParameter(name) { 
+        return decodeURI( 
+            (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1] 
+        ); 
+    }
+    function toggleCurrentRobot() {
+        if (currentRobot == 0) {
+            currentRobot = 1;
+        } else {
+            currentRobot = 0;
+        }
+    }
+
     function start() {
         var canvas = document.createElement('canvas');
         canvas.height="800";
@@ -50,7 +72,13 @@
         canvas.setAttribute("style", "position:absolute;top:20;left:20;display:none;");
         //canvas.setAttribute("style", "background-color:#000;;position:relative;top:0;left:0;");
         var img = new Image();
-        img.src = 'demos/demo4.jpg';
+        var filename = getURLParameter("filename");
+        if (filename == "null") {
+            filename = 'demos/demo4.jpg';
+        } else {
+            filename = 'tmp/' + filename;
+        }
+        img.src = filename;
         img.onload = function(){
                 var ctx = canvas.getContext('2d');
                 ctx.drawImage(img, 0, 0);
@@ -294,6 +322,39 @@
     var img_b = new Image();
     img_b.src = 'lego_b.png';
 
+    var img2_still = new Image();
+    img2_still.src = 'bot_still.png';
+    var img2_down = new Image();
+    img2_down.src = 'bot_down.png';
+    var img2_up = new Image();
+    img2_up.src = 'bot_up.png';
+    var img2_left = new Image();
+    img2_left.src = 'bot_left.png';
+    var img2_right = new Image();
+    img2_right.src = 'bot_right.png';
+    var img2_a = new Image();
+    img2_a.src = 'bot_a.png';
+    var img2_b = new Image();
+    img2_b.src = 'bot_b.png';
+    
+    var currentRobot = 0;
+    robotImages = [
+        { 'still': img_still,
+          'down': img_down,
+          'up': img_up,
+          'left': img_left,
+          'right': img_right,
+          'a': img_a,
+          'b': img_b },
+        { 'still': img2_still,
+          'down': img2_down,
+          'up': img2_up,
+          'left': img2_left,
+          'right': img2_right,
+          'a': img2_a,
+          'b': img2_b }
+    ]
+
     function show_program_code_timeout() {
         setTimeout(show_program_code, 2000);
     }
@@ -327,7 +388,7 @@
         document.getElementById("application").appendChild(canvas);
 
         var ctx = canvas.getContext('2d');
-        ctx.drawImage(img_still, 50, yPosFigure);
+        ctx.drawImage(robotImages[currentRobot]['still'], 50, yPosFigure);
         ctx.fill();
         $('#playground2').fadeOut(2000);
         $('#playground3').fadeIn(2000, execute_program_timeout);
@@ -353,7 +414,7 @@
         canvas.width = canvas.width;
         var ctx = canvas.getContext('2d');
         if (toggle == 0) {
-            ctx.drawImage(img_still, xPosFigure, yPosFigure);
+            ctx.drawImage(robotImages[currentRobot]['still'], xPosFigure, yPosFigure);
             ctx.fill();
             setTimeout(myGameLoop, 400)
             toggle = 1;
@@ -374,13 +435,13 @@
         var operand = reg;
         switch (opcode) {
             case Opcodes.MVLEFT:
-                ctx.drawImage(img_left, xPosFigure, yPosFigure);
+                ctx.drawImage(robotImages[currentRobot]['left'], xPosFigure, yPosFigure);
                 break;
             case Opcodes.MVRIGHT:
-                ctx.drawImage(img_right, xPosFigure, yPosFigure);
+                ctx.drawImage(robotImages[currentRobot]['right'], xPosFigure, yPosFigure);
                 break;
             case Opcodes.MVUP:
-                ctx.drawImage(img_up, xPosFigure, yPosFigure);
+                ctx.drawImage(robotImages[currentRobot]['up'], xPosFigure, yPosFigure);
                 break;
             case Opcodes.MVDOWN:
                 ctx.drawImage(img_down, xPosFigure, yPosFigure);
@@ -388,10 +449,10 @@
             case Opcodes.BEEP: case Opcodes.WAIT:
                 switch (toggleBeep) {
                     case 0:
-                        ctx.drawImage(img_a, xPosFigure, yPosFigure);
+                        ctx.drawImage(robotImages[currentRobot]['a'], xPosFigure, yPosFigure);
                         break;
                     case 1:
-                        ctx.drawImage(img_b, xPosFigure, yPosFigure);
+                        ctx.drawImage(robotImages[currentRobot]['b'], xPosFigure, yPosFigure);
                         break;                        
                 }
                 toggleBeep++;
@@ -403,10 +464,10 @@
                 thissound.play();
                 break;
             case Opcodes.BEEPSTOP:
-                ctx.drawImage(img_still, xPosFigure, yPosFigure);
+                ctx.drawImage(robotImages[currentRobot]['still'], xPosFigure, yPosFigure);
                 break;
             case Opcodes.JMP:
-                ctx.drawImage(img_still, xPosFigure, yPosFigure);
+                ctx.drawImage(robotImages[currentRobot]['still'], xPosFigure, yPosFigure);
                 ip = reg-1;
                 reg = 0;
                 break;

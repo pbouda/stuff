@@ -4,8 +4,8 @@ import clr
 clr.AddReferenceToFile("Microsoft.Research.Kinect.dll")
 
 from System import InvalidOperationException, DateTime, Uri, UriKind
-from System.Windows import Application, Window, Point, MessageBox
-from System.Windows.Controls import Image, Canvas
+from System.Windows import Application, Window, Point, MessageBox, Thickness, FontWeights
+from System.Windows.Controls import Image, Canvas, TextBox
 from System.Windows.Media import Brush, SolidColorBrush, Color
 from System.Windows.Media.Imaging import BitmapImage, BitmapCacheOption
 from Microsoft.Research.Kinect.Nui import Runtime, RuntimeOptions, \
@@ -22,9 +22,15 @@ class MainWindow(Window):
 
         self.thinkBubble = BitmapImage()
         self.thinkBubble.BeginInit()
-        self.thinkBubble.UriSource = Uri("think.png", UriKind.Relative);
+        self.thinkBubble.UriSource = Uri("think2.png", UriKind.Relative);
         self.thinkBubble.CacheOption = BitmapCacheOption.OnLoad;
+        #self.thinkBubble.Height = 150
+        #self.thinkBubble.Width = 150
         self.thinkBubble.EndInit();
+
+        self.lastX = 0.0
+        self.lastY = 300.0
+        self.foundHead = False
 
     def on_loaded(self, s, e):
         self.nui = Runtime()
@@ -54,20 +60,29 @@ class MainWindow(Window):
 
         for data in skeletonFrame.Skeletons:
             if SkeletonTrackingState.Tracked == data.TrackingState:
-                foundHead = False
                 for joint in data.Joints:
                     if joint.ID == JointID.Head:
                         jointPos = self.getDisplayPosition(joint)
-                        bubble = Image()
-                        #imageSource = System.Windows.Resources["think"]
-                        bubble.Source = self.thinkBubble
-                        bubble.SetValue(Canvas.TopProperty, 200.0)
-                        bubble.SetValue(Canvas.LeftProperty, 1280 - jointPos.X)
-                        self.skeleton.Children.Add(bubble)
-                        lastPos = jointPos
-                        foundHead = True
 
+                        self.lastX = jointPos.X
+                        self.foundHead = True
 
+        if self.foundHead:
+            bubble = Image()
+            #imageSource = System.Windows.Resources["think"]
+            bubble.Source = self.thinkBubble
+            bubble.SetValue(Canvas.TopProperty, self.lastY)
+            bubble.SetValue(Canvas.LeftProperty, self.lastX)
+            self.skeleton.Children.Add(bubble)
+
+            text = TextBox()
+            text.Text = "Hello World!"
+            text.FontSize = 50
+            text.FontWeight = FontWeights.Bold
+            text.BorderThickness = Thickness(0)
+            text.SetValue(Canvas.TopProperty, self.lastY + 120)
+            text.SetValue(Canvas.LeftProperty, self.lastX + 60)
+            self.skeleton.Children.Add(text)
 
 
     def on_closing(self, s, e):
