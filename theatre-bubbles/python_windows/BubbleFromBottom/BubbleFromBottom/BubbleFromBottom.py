@@ -18,7 +18,7 @@ class MainWindow(Window):
 
         self.thinkBubble = BitmapImage()
         self.thinkBubble.BeginInit()
-        self.thinkBubble.UriSource = Uri("think2.png", UriKind.Relative);
+        self.thinkBubble.UriSource = Uri("think.png", UriKind.Relative);
         self.thinkBubble.CacheOption = BitmapCacheOption.OnLoad;
         #self.thinkBubble.Height = 150
         #self.thinkBubble.Width = 150
@@ -37,23 +37,23 @@ class MainWindow(Window):
         self.mainPanel.Children.Add(bubble)
 
         text = TextBox()
-        text.Text = "Hello World!"
-        text.FontSize = 50
+        text.Text = "???"
+        text.FontSize = 65
         text.FontWeight = FontWeights.Bold
         text.BorderThickness = Thickness(0)
-        text.SetValue(Canvas.TopProperty, self.currentY + 120)
-        text.SetValue(Canvas.LeftProperty, self.currentX + 60)
+        text.SetValue(Canvas.TopProperty, self.currentY + 35)
+        text.SetValue(Canvas.LeftProperty, self.currentX + 55)
         self.mainPanel.Children.Add(text)
 
         myDoubleAnimation = DoubleAnimation()
         myDoubleAnimation.From = 770.0;
-        myDoubleAnimation.To = 300.0;
+        myDoubleAnimation.To = 250.0;
 
         myDoubleAnimation.Duration = Duration(TimeSpan.FromSeconds(3))
 
         myDoubleAnimationText = DoubleAnimation()
-        myDoubleAnimationText.From = 770.0 + 120.0;
-        myDoubleAnimationText.To = 300.0 + 120.0;
+        myDoubleAnimationText.From = 770.0 + 35.0;
+        myDoubleAnimationText.To = 250.0 + 35.0;
 
         myDoubleAnimationText.Duration = Duration(TimeSpan.FromSeconds(3))
 

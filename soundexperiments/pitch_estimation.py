@@ -6,7 +6,7 @@ import numpy as np
 chunk = 2048
 
 # open up a wave
-wf = wave.open('test-tones/440hz.wav', 'rb')
+wf = wave.open('sweeplin.wav', 'rb')
 swidth = wf.getsampwidth()
 RATE = wf.getframerate()
 # use a Blackman window
@@ -30,8 +30,10 @@ while len(data) == chunk*swidth:
                                          data))*window
     # Take the fft and square each value
     fftData=abs(np.fft.rfft(indata))**2
+    print len(fftData)
     # find the maximum
     which = fftData[1:].argmax() + 1
+    print which
     # use quadratic interpolation around the max
     if which != len(fftData)-1:
         y0,y1,y2 = np.log(fftData[which-1:which+2:])

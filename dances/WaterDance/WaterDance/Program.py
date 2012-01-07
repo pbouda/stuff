@@ -20,6 +20,8 @@ from pygame.color import THECOLORS
 from pygame.locals import *
 
 import numpy
+from scipy import ndimage
+
 from operator import *
 from random import *
 from math import *
@@ -190,6 +192,25 @@ def heightBlob(x, y, height, radius, h_map):
             if(cx*cx + cyq < rquad):
                 h_map[cx+x][cy+y] += height
 
+def gauss_kern(size, sizey=None):
+    """ Returns a normalized 2D gauss kernel array for convolutions """
+    size = int(size)
+    if not sizey:
+        sizey = size
+    else:
+        sizey = int(sizey)
+    x, y = numpy.mgrid[-size:size+1, -sizey:sizey+1]
+    g = numpy.exp(-(x**2/float(size) + y**2/float(sizey)))
+    return g / g.sum()
+
+def blur_image(im, n, ny=None) :
+    """ blurs the image by convolving with a gaussian kernel of typical
+        size n. The optional keyword argument ny allows for a different
+        size in the y direction.
+    """
+    g = gauss_kern(n, sizey=ny)
+    improc = signal.convolve(im,g, mode='valid')
+    return(improc)
 
 if __name__ == '__main__':
     full_screen = True
@@ -271,7 +292,7 @@ if __name__ == '__main__':
     density = 4
 
     # bobble height
-    pheight = 400
+    pheight = 800
 
     # Strength of the light - increase this for different lighting...
     light = 1
@@ -283,6 +304,8 @@ if __name__ == '__main__':
     # Mode 2 = Surfer
     # Mode 3 = Blob
     mode = 0
+
+    kernel = gauss_kern(3)
 
     while not done:
 #        e = pygame.event.wait()
@@ -366,7 +389,8 @@ if __name__ == '__main__':
             data.resize((480, 640))
             data -= numpy.min(data.ravel())
             data *= float(256) / float(numpy.max(data.ravel()))
-            pygame.surfarray.blit_array(depth_surface, data.transpose())
+            data = ndimage.convolve(data, kernel, mode='constant', cval=0.0)
+            pygame.surfarray.blit_array(depth_surface, data.view(numpy.uint16).transpose())
 
         screen.blit(temp, (0,0))
         #screen.blit(depth_surface, (0,0))
