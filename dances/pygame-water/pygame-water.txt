@@ -1,0 +1,59 @@
+
+--------------------------------------------------------------------------------
+Name      : water.py
+Version   : 1.0
+Authors   : Pete Shinners and Gareth Noyce, based on code by Scott Scriven
+Email     : korruptor@mac.com
+Files     : water.py               -- The Pygame source code
+            water.gif              -- The background texture for the effect
+            pygame-water.txt       -- This file 
+
+Depend  : Pygame 1.3, Numeric, Surfarray, Python 2
+Tested  : Windows 2k, Mac OS X
+--------------------------------------------------------------------------------
+
+
+Description:
+------------
+
+This is a Pygame port of the SDL water effect 
+(http://www.libsdl.org/projects/water/index.html) by Scott Scriven. 
+
+The original DOS source and supportting text file describing the implementation
+of the effect are available from the URL above. I'd suggest reading through 
+the text file first for a detailed explanation, or download the SDL version. 
+
+All numeric optimisations in this port are by Pete Shinners. My original Python 
+code is left in the comments so you can see what his optimisations are doing. 
+Please note: this is not an exact port. The modifiers for lighting and water 
+density have been omitted (easy addition for the user), the blob routine doesn't
+attempt to smooth it's additions to the height map, and the surfer mode doesn't
+attempt to follow the same sort of maths as the original! ;-) 
+
+The keyboard controls to drive the demo are as follows:
+
+"w" == turns on the rain
+"s" == turns on the surfer
+"b" == draws a large rain drop randomly on the screen
+
+All modes will turn off the previous, and blob mode only draws one blob. You've 
+got to keep pressing the key to draw more.
+
+It's trivial to add modifiers to play with the lighting and density, although I 
+agree with Scott, the defaults do look very nice. It'd also be fun to add mouse
+controls to allow you to draw on the water, but that's left to you to add! ;-)
+
+G
+
+
+
+
+
+
+
+
+
+
+
+
+
