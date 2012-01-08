@@ -36,6 +36,8 @@ CHUNKY  = RES/2
 PI 	= 3.14159
 DEG2RAD = PI/180
 
+skeleton_to_depth_image = nui.SkeletonEngine.skeleton_to_depth_image
+
 # recipe to get address of surface: http://archives.seul.org/pygame/users/Apr-2008/msg00218.html
 if hasattr(ctypes.pythonapi, 'Py_InitModule4'):
    Py_ssize_t = ctypes.c_int
@@ -60,6 +62,18 @@ def surface_to_array(surface):
    bytes.object = buffer_interface
    return bytes
 
+def skeleton_frame_ready(frame):
+    skeletons = frame.SkeletonData
+    if skeletons is not None:
+        for index, data in enumerate(skeletons):
+            if (data.eTrackingState == nui.SkeletonTrackingState.TRACKED):
+                left_hand_pos = skeleton_to_depth_image(data.SkeletonPositions[JointId.HandLeft], CHUNKY[0], CHUNKY[1]) 
+                right_hand_pos = skeleton_to_depth_image(data.SkeletonPositions[JointId.HandRight], CHUNKY[0], CHUNKY[1]) 
+                #left_hand = data.SkeletonPositions[JointId.HandLeft]
+                #print left_hand_pos[0]
+                #print left_hand_pos[1]
+                draw_cross(320-int(left_hand_pos[0]), int(left_hand_pos[1]))
+                draw_cross(320-int(right_hand_pos[0]), int(right_hand_pos[1]))
 
 def depth_frame_ready(frame):
     global depth_frame_bits
@@ -203,6 +217,16 @@ def gauss_kern(size, sizey=None):
     g = numpy.exp(-(x**2/float(size) + y**2/float(sizey)))
     return g / g.sum()
 
+def draw_cross(x, y):
+    global height_buffer, hpage, pheight
+    if x < CHUNKY[0] - 1 and y < CHUNKY[1] - 1 and x > 0 and y > 0:
+        # Draw a cross in the height map...
+        height_buffer[hpage][x][y] = pheight
+        height_buffer[hpage][x+1][y] = pheight >> 1
+        height_buffer[hpage][x-1][y] = pheight >> 1
+        height_buffer[hpage][x][y+1] = pheight >> 1
+        height_buffer[hpage][x][y-1] = pheight >> 1
+
 def blur_image(im, n, ny=None) :
     """ blurs the image by convolving with a gaussian kernel of typical
         size n. The optional keyword argument ny allows for a different
@@ -231,6 +255,10 @@ if __name__ == '__main__':
     screen.fill(THECOLORS["black"])
 
     kinect = nui.Runtime()
+
+    kinect.skeleton_engine.enabled = True
+
+    kinect.skeleton_frame_ready += skeleton_frame_ready
 
     kinect.depth_frame_ready += depth_frame_ready    
     kinect.depth_stream.open(nui.ImageStreamType.Depth, 2, nui.ImageResolution.Resolution640x480, nui.ImageType.Depth)

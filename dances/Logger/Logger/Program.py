@@ -171,7 +171,7 @@ def depth_frame_ready(frame):
 
 
 if __name__ == '__main__':
-    full_screen = False
+    full_screen = True
     draw_skeleton = True
     video_display = False
 
