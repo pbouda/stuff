@@ -237,7 +237,7 @@ def blur_image(im, n, ny=None) :
     return(improc)
 
 if __name__ == '__main__':
-    full_screen = True
+    full_screen = False
     draw_skeleton = False
     video_display = False
 
