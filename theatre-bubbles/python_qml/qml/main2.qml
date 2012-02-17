@@ -23,9 +23,9 @@ Rectangle {
             if ( (lastDiff > 0) && (diff < 0) ) {
                 think1TurnBubbleLeft.start();
             }
-            if ( (lastDiff < 0) && (diff > 0) ) {
-                think1TurnBubbleRight.start();
-            }
+            //if ( (lastDiff < 0) && (diff > 0) ) {
+            //    think1TurnBubbleRight.start();
+            //}
             //think1.width = (200 - diff*3);
             lastX = mouse.x;
             if (diff != 0) {
@@ -44,7 +44,7 @@ Rectangle {
     Image {
         id: think1
         source: "think3.png"
-        x: 480
+        x: 400
         y: 800
         
         Text {
@@ -78,7 +78,6 @@ Rectangle {
             anchors.topMargin: 40
             anchors.leftMargin: 10
             anchors.horizontalCenter: parent.horizontalCenter
-            //horizontalAlignment: Text.AlignHCenter
             font.pixelSize: 35
             font.bold: false
             font.family: "Ravie"
@@ -95,12 +94,32 @@ Rectangle {
         
         Text {
             anchors.top: parent.top
-            anchors.topMargin: 80
+            anchors.topMargin: 100
             anchors.horizontalCenter: parent.horizontalCenter
             font.pixelSize: 50
             font.bold: false
             font.family: "Ravie"
-            text: "    KA\nBOUM??"
+            text: "BOUM??"
+        }
+
+    }
+
+    Image {
+        id: think4
+        source: "think7.png"
+        x: 260
+        y: 800
+        
+        Text {
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.topMargin: 80
+            anchors.leftMargin: 120
+            //anchors.horizontalCenter: parent.horizontalCenter
+            font.pixelSize: 35
+            font.bold: false
+            font.family: "Ravie"
+            text: "       Safa,\nque esta é das\n fantásticas..."
         }
 
     }
@@ -108,7 +127,7 @@ Rectangle {
     Particles {
         id: particles
         
-        source: "star3.png";
+        source: "star2.png";
    
         width: 1; height: 1
         anchors.centerIn: think2
@@ -125,7 +144,7 @@ Rectangle {
     Particles {
         id: particles2
         
-        source: "star2.png";
+        source: "star3.png";
    
         width: 1; height: 1
         anchors.centerIn: think3
@@ -141,17 +160,21 @@ Rectangle {
     
     Image {
         id: buddha
-        source: "buddha.png"
+        source: "buddha2.png"
         opacity: 0
-        anchors.centerIn: parent
+        //anchors.centerIn: parent
+        anchors.top: parent.top
+        anchors.left: parent.left
+        anchors.leftMargin: 200
+        anchors.topMargin: 120
     }
 
     Image {
         id: bat
-        source: "bat.png"
+        source: "bat2.png"
         opacity: 0
         x: 600
-        y: 80
+        y: 100
     }
 
     Keys.onPressed: {
@@ -200,6 +223,16 @@ Rectangle {
             event.accepted = true;
             think3Animation2.start();
         }
+        else if (event.key == Qt.Key_U) {
+            console.log('Key U was pressed');
+            event.accepted = true;
+            think4Animation1.start();
+        }
+        else if (event.key == Qt.Key_I) {
+            console.log('Key I was pressed');
+            event.accepted = true;
+            think4Animation2.start();
+        }
         else if (event.key == Qt.Key_Y) {
             console.log('Key Y was pressed');
             event.accepted = true;
@@ -224,7 +257,7 @@ Rectangle {
 
     ParallelAnimation {
         id: think1Animation1
-        SpringAnimation { target: think1; property: "y"; from: 800; to: 350; spring: 0.7; damping: 0.1 }
+        SpringAnimation { target: think1; property: "y"; from: 800; to: 250; spring: 0.7; damping: 0.1 }
         SequentialAnimation {
             PropertyAnimation { target: think1; property: "height"; to: 150; duration: 500; }            
             PropertyAnimation { target: think1; property: "height"; to: 207; duration: 500; }            
@@ -309,10 +342,10 @@ Rectangle {
 
     ParallelAnimation {
         id: think3Animation1
-        SpringAnimation { target: think3; property: "y"; from: 800; to: 150; spring: 0.7; damping: 0.1 }
+        SpringAnimation { target: think3; property: "y"; from: 800; to: 200; spring: 0.7; damping: 0.1 }
         SequentialAnimation {
-            PropertyAnimation { target: think3; property: "height"; to: 350; duration: 500; }            
-            PropertyAnimation { target: think3; property: "height"; to: 414; duration: 500; }
+            PropertyAnimation { target: think3; property: "height"; to: 300; duration: 500; }            
+            PropertyAnimation { target: think3; property: "height"; to: 362; duration: 500; }
         }
     }
 
@@ -322,13 +355,29 @@ Rectangle {
         PropertyAnimation { target: think3; property: "opacity"; to: 0; duration: 500; easing.type: "OutCubic" }
     }
     
+
+    ParallelAnimation {
+        id: think4Animation1
+        SpringAnimation { target: think4; property: "y"; from: 800; to: 50; spring: 0.7; damping: 0.1 }
+        SequentialAnimation {
+            PropertyAnimation { target: think4; property: "height"; to: 450; duration: 500; }            
+            PropertyAnimation { target: think4; property: "height"; to: 500; duration: 500; }
+        }
+    }
+
+    ParallelAnimation {
+        id: think4Animation2
+        //ScriptAction { script: particles2.burst(2000); }
+        PropertyAnimation { target: think4; property: "opacity"; to: 0; duration: 500; easing.type: "OutCubic" }
+    }
+
     NumberAnimation { id: buddhaAnimation1; target: buddha; property: "opacity"; from: 0.0; to: 0.9; duration: 2000;  easing { type: Easing.OutBack; } }    
     PropertyAnimation { id: buddhaAnimation2; target: buddha; property: "opacity"; to: 0; duration: 2000;  easing { type: Easing.InBack; }  }
 
     ParallelAnimation {
         id: batAnimation1;
         NumberAnimation {  target: bat; property: "opacity"; from: 0.0; to: 0.9; duration: 2000; }    
-        PropertyAnimation {  target: bat; property: "x"; from: 600; to: 200; duration: 1500;  easing { type: Easing.OutBack; } }    
+        PropertyAnimation {  target: bat; property: "x"; from: -600; to: 0; duration: 1500;  easing { type: Easing.OutBack; } }    
     }
     
     PropertyAnimation { id: batAnimation2; target: bat; property: "opacity"; to: 0; duration: 1000;  easing { type: Easing.InBack; }  }
