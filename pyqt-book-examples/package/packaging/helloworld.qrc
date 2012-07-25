@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="translations">
+    <file alias="helloworld_de.qm">data/locale/helloworld_de.qm</file>
+    <file alias="helloworld_pt.qm">data/locale/helloworld_pt.qm</file>
+  </qresource>
+  <qresource prefix="images">
+    <file alias="pyqt_logo.png">data/images/pyqt_logo.png</file>
+  </qresource>
+</RCC>

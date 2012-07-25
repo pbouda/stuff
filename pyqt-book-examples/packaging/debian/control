@@ -1,0 +1,14 @@
+Source: helloworld
+Maintainer: Peter Bouda <pbouda@dasskript.com>
+Section: misc
+Priority: optional
+Build-Depends: cdbs (>= 0.4.49), debhelper (>= 7), python (>= 2.6), python-support, python-qt4
+XS-Python-Version: >= 2.6
+Standards-Version: 3.8.4
+Homepage: http://www.dasskript.com
+
+Package: helloworld
+Architecture: any
+Depends: ${misc:Depends}, python, python-qt4, ${python:Depends}
+Description: Hello World is a software
+ that greets the world in a unique way.

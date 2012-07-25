@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Hello World
+Name[de]=Hallo Welt
+Comment=Hello World is a software that greets the world in a unique way.
+Comment[de]=Hallo Welt ist eine Software, die die Welt auf eine einzigartige Weise begrüßt.
+Exec=helloworld
+Terminal=false
+Type=Application
+Categories=Utility;Qt
+Encoding=UTF-8
+Version=1.0

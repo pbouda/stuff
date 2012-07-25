@@ -1,0 +1,9 @@
+<RCC>
+  <qresource prefix="translations">
+    <file>helloworld_de.qm</file>
+    <file>helloworld_pt.qm</file>
+  </qresource>
+  <qresource prefix="images">
+    <file>pyqt_logo.png</file>
+  </qresource>
+</RCC>

@@ -1,0 +1,1 @@
+c:\Python27\Scripts\cxfreeze.bat --base-name=Win32GUI --include-path="src" --target-dir=dist_win/bin bin\helloworld

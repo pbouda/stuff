@@ -1,0 +1,11 @@
+[Project]
+category = Development
+maintainer = Peter Bouda
+appname = Hello World
+section = misc
+pyversion = 2.6
+project = helloworld
+template = ubuntu-qtgui
+email = pbouda@dasskript.com
+desc = Hello World Software
+
