@@ -36,8 +36,8 @@ while p < L-(N+H):
     # take their phase difference and integrate
     phi += (angle(spec2) - angle(spec1))
     # bring the phase back to between pi and -pi
-    while phi < -pi: phi += 2*pi
-    while phi >= pi: phi -= 2*pi
+    while any(phi) < -pi: phi += 2*pi
+    while any(phi) >= pi: phi -= 2*pi
     out.real, out.imag = cos(phi), sin(phi)
     # inverse FFT and overlap-add
     sigout[pp:pp+N] += win*ifft(abs(spec2)*out)
@@ -45,10 +45,10 @@ while p < L-(N+H):
     p += H*tscale
  
 #  write file to output, scaling it to original amp
-#wavfile.write(sys.argv[3],sr,array(amp*sigout/max(sigout), dtype='int16'))
+wavfile.write(sys.argv[3],sr,array(amp*sigout/max(sigout), dtype='int16'))
 
 #  play it using a libsndfile utility
 import pygame
-pygame.mixer.init(frequency=sr)
+pygame.mixer.init(frequency=sr, channels=1)
 snd_array = array(amp*sigout/max(sigout), dtype='int16')
 pygame.sndarray.make_sound(snd_array)

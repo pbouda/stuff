@@ -6,7 +6,7 @@ import numpy as np
 chunk = 2048
 
 # open up a wave
-wf = wave.open('sweeplin.wav', 'rb')
+wf = wave.open('male.wav', 'rb')
 swidth = wf.getsampwidth()
 RATE = wf.getframerate()
 # use a Blackman window
