@@ -123,14 +123,6 @@ def reflect(x0, y0, x1, y1, d=1.0, a=180):
 
 ################################################################
 
-f2c = lambda f: int(f * 255.0) & 0xff
-c2f = lambda c: float(c) / 255.0
-alpha = lambda c: (c >> 24) & 0xff
-red = lambda c: (c >> 16) & 0xff
-green = lambda c: (c >> 8) & 0xff
-blue = lambda c: c & 0xff
-pack = lambda a, r, g, b: (f2c(a) << 24) | (f2c(r) << 16) | (f2c(g) << 8) | f2c(b)
-
 def gradient(colors, steps):
     colors_per_step = steps / len(colors)
     num_colors = int(colors_per_step) * len(colors)
