@@ -49,7 +49,10 @@ def create_inputhook_kivy(app=None):
     def inputhook_kivy(self = None):
         try:
             while not stdin_ready() and not EventLoop.quit:
-                EventLoop.window._mainloop()
+                try:
+                    EventLoop.window._mainloop()
+                except Exception as e:
+                    print(e)
 
         except KeyboardInterrupt:
             print("???")
@@ -167,6 +170,16 @@ def composeimage(canvas, center=(400,300), radius=200, points=100, diminish=10,
         brushpaint(canvas, center = center, points = int(points-i*0.2),
             length = radius - i + random( count - i ) / 3, diminish = diminish)
 
+def brushstroke(canvas, x1, y1, x2, y2, color, diminish=10):
+    with canvas:
+        Color(color[0], color[1], color[2])
+        b = Bezier(points=[x1, y1,
+            x1 + random(-diminish, diminish), y1 + random(-diminish, diminish),
+            x2 + random(-diminish, diminish), y2 + random(-diminish, diminish),
+            x2, y2
+        ])
+    return b
+
 def brushpaint(canvas, center=(400,300), points=100, length=100, diminish=10):
     if points <= 0 or length <= 0:
         return
@@ -176,9 +189,4 @@ def brushpaint(canvas, center=(400,300), points=100, length=100, diminish=10):
         x = 0; y = 0
         dx, dy = coordinates(x, y, length, angle)
         x += center[0]; y += center[1]; dx += center[0]; dy += center[1]
-        with canvas:
-            Bezier(points=[x,y,
-                x + random(-diminish, diminish), y + random(-diminish, diminish),
-                dx + random(-diminish, diminish), dy + random(-diminish, diminish),
-                dx, dy
-            ])
+        brushstroke(canvas, x, y, dx, dy)
