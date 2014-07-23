@@ -73,21 +73,20 @@ def gradient(colors, steps):
 
 class TestApp(App):
 
-    def composeimage(self, canvas, center=(400,300), radius=200, points=100, diminish=10,
+    def composeimage(self, widget, center=(400,300), radius=200, points=50, diminish=10,
             colors = [ [0.0, 0.0, 0.0, 1.0], [0.4, 0.4, 0.4, 1.0], [1.0, 1.0, 1.0, 1.0] ]):
+        self.root.canvas.clear()
         count = int( radius * 1.3 )
         grad = gradient(colors, count)
         angle = 0.0
-        for i in range(len(grad)):
-            c = grad[i]
+        for i, c in enumerate(grad):
             with self.root.canvas:
                 Color(c[0], c[1], c[2])
-
             #a = 0.75 - 0.25 * float( i ) / count
-            self.brushpaint(canvas, center = center, points = int(points-i*0.2),
+            self.brushpaint(center = center, points = int(points+i*0.2),
                 length = radius - i + random( count - i ) / 3, diminish = diminish)
 
-    def brushpaint(self, canvas, center=(400,300), points=100, length=100, diminish=10):
+    def brushpaint(self, center=(400,300), points=100, length=100, diminish=10):
         if points <= 0 or length <= 0:
             return
         angle_step = 360.0 / points
