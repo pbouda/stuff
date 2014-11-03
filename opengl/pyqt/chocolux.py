@@ -4,6 +4,7 @@
 # Author: Peter Bouda, http://www.peterbouda.eu
 
 import time
+import array
 
 from PyQt5.QtMultimedia import *
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -57,7 +58,7 @@ class OpenGLWindow(QtGui.QWindow):
             self.m_gl = self.m_context.versionFunctions(version)
             self.m_gl.initializeOpenGLFunctions()
 
-            self.initialize()
+            self.initialize(self.m_gl)
 
         self.render(self.m_gl)
 
@@ -83,24 +84,25 @@ class OpenGLWindow(QtGui.QWindow):
 class ChocoWindow(OpenGLWindow):
     
     vertexShaderSource = '''
-varying vec3 s[4];
+attribute highp vec4 vPosition;
+varying highp vec3 s[4];
 
 void main() {
-    gl_Position=gl_Vertex;
+    gl_Position=vPosition;
     s[0]=vec3(0);
-    s[3]=vec3(sin(abs(gl_Vertex.x*.0001)),
-        cos(abs(gl_Vertex.x*.0001)),0);
+    s[3]=vec3(sin(abs(vPosition[0]*.0001)),
+        cos(abs(vPosition[0]*.0001)),0);
     s[1]=s[3].zxy;
     s[2]=s[3].zzx;
 }
 '''
 
     fragmentShaderSource = '''
-varying vec3 s[4];
+varying highp vec3 s[4];
 
 void main() {
-    float t,b,c,h=0.0;
-    vec3 m,n,p=vec3(.2),d=normalize(.001*gl_FragCoord.rgb-p);
+    highp float t,b,c,h=0.0;
+    highp vec3 m,n,p=vec3(.2),d=normalize(.001*gl_FragCoord.rgb-p);
     for(int i=0;i<4;i++) {
         t=2.0;
         for(int i=0; i<4; i++) {
@@ -123,7 +125,7 @@ void main() {
     def __init__(self, parent=None):
         super(ChocoWindow, self).__init__(parent)
 
-    def initialize(self):
+    def initialize(self, gl):
         self.program = QtGui.QOpenGLShaderProgram(self)
 
         self.program.addShaderFromSourceCode(QtGui.QOpenGLShader.Vertex,
@@ -133,7 +135,8 @@ void main() {
 
         self.program.link()
 
-        #self.sAttr = self.program.attributeLocation('s')
+        self.vAttr = self.program.attributeLocation('vPosition')
+        #gl.BufferData(gl.GL_ARRAY_BUFFER, 16*4, None, gl.GL_STATIC_DRAW)
 
     def render(self, gl):
         gl.glViewport(0, 0, self.width(), self.height())
@@ -142,7 +145,28 @@ void main() {
         self.program.bind()
 
         t = int(time.clock()*10000)
-        gl.glRecti(t, t, -t, -t)
+
+        vertices = array.array("f", [
+            float(t), float(t), 0.0,
+            float(-t),  float(t), 0.0,
+            float(-t), float(-t), 0.0,
+            float(t),  float(-t), 0.0
+        ])
+
+        indices = array.array("B", [0,1,2,0,2,3])
+
+        gl.glEnableVertexAttribArray(self.vAttr)
+
+        gl.glVertexAttribPointer(self.vAttr,
+            3,
+            gl.GL_FLOAT,
+            gl.GL_FALSE,
+            0,
+            vertices)
+
+        gl.glDrawElements(gl.GL_TRIANGLES, 6, gl.GL_UNSIGNED_BYTE, indices)
+
+        gl.glDisableVertexAttribArray(self.vAttr)
 
         self.program.release()
 
