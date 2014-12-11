@@ -86,13 +86,15 @@ class ChocoWindow(OpenGLWindow):
     
     vertexShaderSource = '''
 attribute highp vec4 vPosition;
-uniform lowp vec4 fpar[3];
+uniform highp vec4 cam;
+uniform highp vec4 origin;
+uniform highp vec4 ray;
 varying highp vec4 tc[2];
 
 void main(void)
 {
     gl_Position=vPosition;
-    vec3 d=normalize(fpar[1].xyz-fpar[0].xyz);
+    vec3 d=normalize(origin.xyz-cam.xyz);
     vec3 r=normalize(cross(d,vec3(0.0,1.0,0.0)));
     vec3 u=cross(r,d);
     vec3 e=vec3(vPosition.x*1.333,vPosition.y,.75);   //    eye space ray
@@ -102,7 +104,9 @@ void main(void)
 '''
 
     fragmentShaderSource = '''
-uniform lowp vec4 fpar[3];
+uniform highp vec4 cam;
+uniform highp vec4 origin;
+uniform highp vec4 ray;
 varying highp vec4 tc[2];
 
 highp float interesctSphere(in highp vec3 rO, in highp vec3 rD, in highp vec4 sph)
@@ -121,18 +125,17 @@ highp float interesctSphere(in highp vec3 rO, in highp vec3 rD, in highp vec4 sp
 void main(void)
 {
     highp vec3 wrd = normalize(tc[0].xyz);
-    highp vec3 wro = fpar[0].xyz;
-    highp float dif = dot( tc[1].xy-vec2(0.5), vec2(0.707) );
+    highp vec3 wro = cam.xyz;
+    highp float dif = dot( origin.xy-vec2(0.5), vec2(0.707) );
 
-    highp float t = interesctSphere(wro,wrd,fpar[2]);
-    gl_FragColor = vec4(fpar[2][3], dif, 0.0, 1.0);
-    /*if(t>0.0)
+    highp float t = interesctSphere(wro,wrd,ray);
+    if(t>0.0)
     {
         highp vec3 inter = wro + t*wrd;
-        highp vec3 norma = normalize( inter - fpar[2].xyz );
+        highp vec3 norma = normalize( inter - ray.xyz );
         dif = dot(norma,vec3(0.57703));
     }
-    gl_FragColor = dif*vec4(0.5,0.4,0.3,0.0) + vec4(0.5,0.5,0.5,1.0);*/
+    gl_FragColor = dif*vec4(0.5,0.4,0.3,0.0) + vec4(0.5,0.5,0.5,1.0);
 }
 '''
 
@@ -162,13 +165,12 @@ void main(void)
 
         t = time.clock() - self.start_time
 
-        fparams = QtGui.QMatrix4x4([
-            2.0*math.sin(1.0*t + 0.1),  0.0, 2.0*math.cos(1.0*t), 0.0,
-            0.0, 0.0, 0.0, 0.0,
-            0.0, 0.0, 0.0, 1.0,
-            0.0, 0.0, 0.0, 0.0
-        ])
-        self.program.setUniformValue("fpar", fparams);
+        cam = QtGui.QVector4D(2.0*math.sin(1.0*t + 0.1),  0.0, 2.0*math.cos(1.0*t), 0.0)
+        self.program.setUniformValue("cam", cam);
+        origin = QtGui.QVector4D(0.0, 0.0, 0.0, 0.0)
+        self.program.setUniformValue("origin", origin)
+        ray = QtGui.QVector4D(0.0, 0.0, 0.0, 1.0)
+        self.program.setUniformValue("ray", ray)
 
         vertices = array.array("f", [
              1,  1, 0,
@@ -188,7 +190,6 @@ void main(void)
             0,
             vertices)
 
-        #gl.glDrawArrays(gl.GL_TRIANGLES, 0, 4)
         gl.glDrawElements(gl.GL_TRIANGLES, 6, gl.GL_UNSIGNED_BYTE, indices)
 
         gl.glDisableVertexAttribArray(self.vAttr)
