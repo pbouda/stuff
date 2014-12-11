@@ -5,6 +5,7 @@
 
 import time
 import array
+import math
 
 from PyQt5.QtMultimedia import *
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -58,7 +59,7 @@ class OpenGLWindow(QtGui.QWindow):
             self.m_gl = self.m_context.versionFunctions(version)
             self.m_gl.initializeOpenGLFunctions()
 
-            self.initialize(self.m_gl)
+            self.initialize()
 
         self.render(self.m_gl)
 
@@ -85,47 +86,63 @@ class ChocoWindow(OpenGLWindow):
     
     vertexShaderSource = '''
 attribute highp vec4 vPosition;
-varying highp vec3 s[4];
+uniform lowp vec4 fpar[3];
+varying highp vec4 tc[2];
 
-void main() {
+void main(void)
+{
     gl_Position=vPosition;
-    s[0]=vec3(0);
-    s[3]=vec3(sin(abs(vPosition[0]*.0001)),
-        cos(abs(vPosition[0]*.0001)),0);
-    s[1]=s[3].zxy;
-    s[2]=s[3].zzx;
+    vec3 d=normalize(fpar[1].xyz-fpar[0].xyz);
+    vec3 r=normalize(cross(d,vec3(0.0,1.0,0.0)));
+    vec3 u=cross(r,d);
+    vec3 e=vec3(vPosition.x*1.333,vPosition.y,.75);   //    eye space ray
+    tc[0].xyz=mat3(r,u,d)*e;                 //  world space ray
+    tc[1]=vec4(.5)+vPosition*.5;             // screen space coordinate
 }
 '''
 
     fragmentShaderSource = '''
-varying highp vec3 s[4];
+uniform lowp vec4 fpar[3];
+varying highp vec4 tc[2];
 
-void main() {
-    highp float t,b,c,h=0.0;
-    highp vec3 m,n,p=vec3(.2),d=normalize(.001*gl_FragCoord.rgb-p);
-    for(int i=0;i<4;i++) {
-        t=2.0;
-        for(int i=0; i<4; i++) {
-            b=dot(d,n=s[i]-p);
-            c=b*b+.2-dot(n,n);
-            if ((b-c)<t)
-                if (c>0.0) {
-                    m=s[i];
-                    t=b-c;
-                }
-        }
-        p+=t*d;
-        d=reflect(d,n=normalize(p-m));
-        h+=pow(n.x*n.x,44.)+n.x*n.x*.2;
+highp float interesctSphere(in highp vec3 rO, in highp vec3 rD, in highp vec4 sph)
+{
+    highp vec3 p = rO - sph.xyz;
+    highp float b = dot( p, rD );
+    highp float c = dot( p, p ) - sph.w*sph.w;
+    highp float h = b*b - c;
+    if( h>0.0 )
+    {
+        h = -b - sqrt( h );
     }
-    gl_FragColor=vec4(h,h*h,h*h*h*h,h);
+    return h;
+}
+
+void main(void)
+{
+    highp vec3 wrd = normalize(tc[0].xyz);
+    highp vec3 wro = fpar[0].xyz;
+    highp float dif = dot( tc[1].xy-vec2(0.5), vec2(0.707) );
+
+    highp float t = interesctSphere(wro,wrd,fpar[2]);
+    gl_FragColor = vec4(fpar[2][3], dif, 0.0, 1.0);
+    /*if(t>0.0)
+    {
+        highp vec3 inter = wro + t*wrd;
+        highp vec3 norma = normalize( inter - fpar[2].xyz );
+        dif = dot(norma,vec3(0.57703));
+    }
+    gl_FragColor = dif*vec4(0.5,0.4,0.3,0.0) + vec4(0.5,0.5,0.5,1.0);*/
 }
 '''
 
     def __init__(self, parent=None):
         super(ChocoWindow, self).__init__(parent)
+        self.current_blend = 0.0
+        self.step_blend = 0.01
+        self.start_time = time.clock()
 
-    def initialize(self, gl):
+    def initialize(self):
         self.program = QtGui.QOpenGLShaderProgram(self)
 
         self.program.addShaderFromSourceCode(QtGui.QOpenGLShader.Vertex,
@@ -136,7 +153,6 @@ void main() {
         self.program.link()
 
         self.vAttr = self.program.attributeLocation('vPosition')
-        #gl.BufferData(gl.GL_ARRAY_BUFFER, 16*4, None, gl.GL_STATIC_DRAW)
 
     def render(self, gl):
         gl.glViewport(0, 0, self.width(), self.height())
@@ -144,13 +160,21 @@ void main() {
 
         self.program.bind()
 
-        t = int(time.clock()*10000)
+        t = time.clock() - self.start_time
+
+        fparams = QtGui.QMatrix4x4([
+            2.0*math.sin(1.0*t + 0.1),  0.0, 2.0*math.cos(1.0*t), 0.0,
+            0.0, 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0, 1.0,
+            0.0, 0.0, 0.0, 0.0
+        ])
+        self.program.setUniformValue("fpar", fparams);
 
         vertices = array.array("f", [
-            float(t), float(t), 0.0,
-            float(-t),  float(t), 0.0,
-            float(-t), float(-t), 0.0,
-            float(t),  float(-t), 0.0
+             1,  1, 0,
+            -1,  1, 0,
+            -1, -1, 0,
+             1, -1, 0
         ])
 
         indices = array.array("B", [0,1,2,0,2,3])
