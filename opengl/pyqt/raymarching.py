@@ -86,28 +86,27 @@ class ChocoWindow(OpenGLWindow):
     
     vertexShaderSource = '''
 attribute highp vec4 vPosition;
-uniform highp vec4 cam;
-uniform highp vec4 origin;
-uniform highp vec4 ray;
-varying highp vec4 tc[2];
+uniform highp vec3 cam;
+uniform highp vec3 lookat;
+uniform highp vec4 obj;
+varying highp vec3 rd;
 
 void main(void)
 {
-    gl_Position=vPosition;
-    vec3 d=normalize(origin.xyz-cam.xyz);
-    vec3 r=normalize(cross(d,vec3(0.0,1.0,0.0)));
-    vec3 u=cross(r,d);
-    vec3 e=vec3(vPosition.x*1.333,vPosition.y,.75);   //    eye space ray
-    tc[0].xyz=mat3(r,u,d)*e;                 //  world space ray
-    tc[1]=vec4(.5)+vPosition*.5;             // screen space coordinate
+    gl_Position = vPosition;
+    vec3 d = normalize(lookat - cam);
+    vec3 r = normalize(cross(d, vec3(0.0, 1.0, 0.0)));
+    vec3 u = cross(r, d);
+    vec3 e = vec3(vPosition.x*1.333, vPosition.y, .75);   //    eye space ray
+    rd = mat3(r,u,d)*e;                                  //  world space ray
 }
 '''
 
     fragmentShaderSource = '''
-uniform highp vec4 cam;
-uniform highp vec4 origin;
-uniform highp vec4 ray;
-varying highp vec4 tc[2];
+uniform highp vec3 cam;
+uniform highp vec3 lookat;
+uniform highp vec4 obj;
+varying highp vec3 rd;
 
 highp float interesctSphere(in highp vec3 rO, in highp vec3 rD, in highp vec4 sph)
 {
@@ -124,16 +123,14 @@ highp float interesctSphere(in highp vec3 rO, in highp vec3 rD, in highp vec4 sp
 
 void main(void)
 {
-    highp vec3 wrd = normalize(tc[0].xyz);
-    highp vec3 wro = cam.xyz;
-    highp float dif = dot( origin.xy-vec2(0.5), vec2(0.707) );
+    highp float dif = dot( lookat.xy-vec2(0.5), vec2(0.707) );
 
-    highp float t = interesctSphere(wro,wrd,ray);
+    highp float t = interesctSphere(cam, normalize(rd), obj);
     if(t>0.0)
     {
-        highp vec3 inter = wro + t*wrd;
-        highp vec3 norma = normalize( inter - ray.xyz );
-        dif = dot(norma,vec3(0.57703));
+        highp vec3 inter = cam + t*rd;
+        highp vec3 norma = normalize( inter-obj.xyz );
+        dif = dot(norma, vec3(0.57703));
     }
     gl_FragColor = dif*vec4(0.5,0.4,0.3,0.0) + vec4(0.5,0.5,0.5,1.0);
 }
@@ -165,12 +162,12 @@ void main(void)
 
         t = time.clock() - self.start_time
 
-        cam = QtGui.QVector4D(2.0*math.sin(1.0*t + 0.1),  0.0, 2.0*math.cos(1.0*t), 0.0)
+        cam = QtGui.QVector3D(2.0*math.sin(1.0*t + 0.1),  0.0, 2.0*math.cos(1.0*t))
         self.program.setUniformValue("cam", cam);
-        origin = QtGui.QVector4D(0.0, 0.0, 0.0, 0.0)
-        self.program.setUniformValue("origin", origin)
-        ray = QtGui.QVector4D(0.0, 0.0, 0.0, 1.0)
-        self.program.setUniformValue("ray", ray)
+        lookat = QtGui.QVector3D(0.0, 0.0, 0.0)
+        self.program.setUniformValue("lookat", lookat)
+        obj = QtGui.QVector4D(0.0, 0.0, 0.0, 1.0)
+        self.program.setUniformValue("obj", obj)
 
         vertices = array.array("f", [
              1,  1, 0,
@@ -207,7 +204,7 @@ if __name__ == '__main__':
 
     window = ChocoWindow()
     window.setFormat(format)
-    window.resize(640, 480)
+    window.resize(1026, 768)
     window.show()
 
     window.setAnimating(True)
